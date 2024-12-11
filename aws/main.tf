@@ -2,10 +2,24 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
-  allowed_policies = [
-    "ReadOnlyAccess",
-    "SecurityAudit",
-    "AWSSSOReadOnly"
+  allowed_managed_policies = [
+    "ReadOnlyAccess"
+  ]
+  denied_custom_policies = [
+    "aws-portal:*",
+    "billing:*",
+    "ce:*",
+    "chime:*",
+    "consolidatedbilling:*",
+    "cost-optimization-hub:*",
+    "cur:*",
+    "freetier:*",
+    "invoicing:*",
+    "payments:*",
+    "tax:*"
+  ]
+  allowed_custom_policies = [
+    "ecs:Get*",
   ]
 }
 
@@ -18,13 +32,7 @@ resource "aws_iam_policy" "sola_policy_deny_list" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        "Action" : [
-          "chime:*",
-          "consolidatedbilling:*",
-          "freetier:*",
-          "invoicing:*",
-          "payments:*"
-        ],
+        "Action" : local.denied_custom_policies,
         "Effect" : "Deny",
         "Resource" : "*"
       },
@@ -42,16 +50,7 @@ resource "aws_iam_policy" "sola_policy_allow_list" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        "Action" : [
-          "kms:Get*",
-          "kms:List*",
-          "kms:Describe*",
-          "ecs:Get*",
-          "ecs:List*",
-          "ecs:Describe*",
-          "organizations:List*",
-          "organizations:Describe*"
-        ],
+        "Action" : local.allowed_custom_policies,
         "Effect" : "Allow",
         "Resource" : "*"
       },
@@ -101,7 +100,7 @@ resource "aws_iam_role_policy_attachment" "sola_policy_allow_list" {
 }
 
 resource "aws_iam_role_policy_attachment" "sola_allowed_policies" {
-  for_each   = toset(local.allowed_policies)
+  for_each   = toset(local.allowed_managed_policies)
   role       = aws_iam_role.sola_access_role.name
   policy_arn = "arn:aws:iam::aws:policy/${each.value}"
 }
