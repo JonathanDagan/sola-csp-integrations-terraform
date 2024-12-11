@@ -3,11 +3,14 @@
 
 ### Sola's AWS integration managed via Terraform
 
+_(`role_name` is optional)_
 ```hcl-terraform
 module "sola-aws-integration" {
-  source               = "github.com/SolaSecurity/sola-csp-integrations-terraform/aws"
+  source = "github.com/SolaSecurity/sola-csp-integrations-terraform/aws"
+
   role_external_id     = "EXTERNAL_ID"
   sola_organization_id = "SOLA_AWS_ACCOUNT_ID"
+  role_name            = "ROLE_NAME"
 }
 
 output "role_arn" {
@@ -18,10 +21,13 @@ output "role_arn" {
 
 ### Sola's GCP integration managed via Terraform
 
+_(`service_account_name` is optional)_
 ```hcl-terraform
 module "sola-gcp-integration" {
-  source     = "github.com/SolaSecurity/sola-csp-integrations-terraform/gcp"
+  source = "github.com/SolaSecurity/sola-csp-integrations-terraform/gcp"
+
   project_id           = "PROJECT_ID"
+  service_account_name = "SERVICE_ACCOUNT_NAME"
 }
 
 output "private_key" {
@@ -42,19 +48,18 @@ resource "null_resource" "save_key" {
 
 ### Sola's Azure integration managed via Terraform
 
+_(`app_name` is optional)_
 ```hcl-terraform
 module "sola-azure-integration" {
-  source          = "github.com/SolaSecurity/sola-csp-integrations-terraform/azure"
+  source = "github.com/SolaSecurity/sola-csp-integrations-terraform/azure"
+
   subscription_id = "SUBSCRIPTION_ID"
+  app_name        = "APPLICATION_NAME"
 }
 
 output "credentials" {
   value     = module.sola-azure-integration.credentials
   sensitive = true
-}
-
-output "grant_admin_consent_url" {
-  value = module.sola-azure-integration.grant_admin_consent_url
 }
 
 resource "null_resource" "print_credentials" {
