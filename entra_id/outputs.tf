@@ -6,3 +6,7 @@ output "credentials" {
   }
   sensitive = true
 }
+
+output "grant_admin_consent_url" {
+  value = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${azuread_service_principal.sola_sp.client_id}/isMSAApp~/false"
+}

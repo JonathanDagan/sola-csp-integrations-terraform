@@ -42,6 +42,8 @@ resource "null_resource" "save_key" {
     cat private_key.json
     EOT
   }
+
+  depends_on = [module.sola-gcp-integration]
 }
 ```
 
@@ -69,5 +71,36 @@ resource "null_resource" "print_credentials" {
     cat credentials.json | sed -E 's/[{"}]//g; s/,/\n/g; s/:/: /'
     EOT
   }
+
+  depends_on = [module.sola-azure-integration]
+}
+```
+
+### Sola's Microsoft Entra ID integration managed via Terraform
+
+_(`app_name` is optional)_
+```hcl-terraform
+module "sola-ms-entra-id-integration" {
+  source = "github.com/SolaSecurity/sola-csp-integrations-terraform/entra_id"
+
+  tenant_id = "TENANT_ID"
+  app_name  = "APPLICATION_NAME"
+}
+
+output "credentials" {
+  value     = module.sola-ms-entra-id-integration.credentials
+  sensitive = true
+}
+
+resource "null_resource" "print_credentials" {
+  provisioner "local-exec" {
+    command = <<EOT
+    terraform output -json credentials > credentials.json
+    cat credentials.json | sed -E 's/[{"}]//g; s/,/\n/g; s/:/: /'
+    echo "\nMake sure you granted admin consent:\n$(terraform output -raw grant_admin_consent_url)"
+    EOT
+  }
+
+  depends_on = [module.sola-ms-entra-id-integration]
 }
 ```
