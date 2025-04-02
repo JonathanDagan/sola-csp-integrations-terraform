@@ -92,6 +92,11 @@ output "credentials" {
   sensitive = true
 }
 
+output "grant_admin_consent_url" {
+  value     = module.sola-ms-entra-id-integration.grant_admin_consent_url
+  sensitive = true
+}
+
 resource "null_resource" "print_credentials" {
   provisioner "local-exec" {
     command = <<EOT
