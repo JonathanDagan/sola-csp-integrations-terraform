@@ -60,9 +60,6 @@ resource "azurerm_role_assignment" "sola_custom_role_assignment" {
   principal_id         = azuread_service_principal.sola_sp.object_id
 }
 
-# Create the Sola custom roles with a time delay to allow the Azure dataplane to catch up. You can leave the max default variable to the default.
-# The creation of Azure custom role can take several minutes and needs to be completed before the role assignments are made, or the role assignments will simply not happen.
-# Similarly, you may notice that deletion of the custom role can take several minutes to complete when you run `terraform destroy`.
 resource "time_sleep" "wait_for_az_dataplane_custom_role" {
   create_duration = var.azure_wait_timer
   depends_on      = [azurerm_role_definition.sola_custom_role]
