@@ -1,5 +1,23 @@
 locals {
-  roles = ["Reader", "Security Reader"]
+  custom_role_name = var.custom_role_name
+  custom_role_permissions = [
+    "*/read",
+    "Microsoft.Authorization/*/read",
+    "Microsoft.Insights/alertRules/read",
+    "Microsoft.operationalInsights/workspaces/*/read",
+    "Microsoft.Resources/deployments/*/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Security/*/read",
+    "Microsoft.IoTSecurity/*/read",
+    "Microsoft.Support/*/read",
+    "Microsoft.Security/iotDefenderSettings/packageDownloads/action",
+    "Microsoft.Security/iotDefenderSettings/downloadManagerActivation/action",
+    "Microsoft.Security/iotSensors/downloadResetPassword/action",
+    "Microsoft.IoTSecurity/defenderSettings/packageDownloads/action",
+    "Microsoft.IoTSecurity/defenderSettings/downloadManagerActivation/action",
+    "Microsoft.Management/managementGroups/read",
+    "Microsoft.ContainerRegistry/registries/listCredentials/action"
+  ]
 }
 
 data "azuread_client_config" "current" {}
@@ -26,9 +44,20 @@ resource "azuread_application_password" "sola_app_password" {
   end_date       = timeadd(timestamp(), "87600h") # 10 years
 }
 
-resource "azurerm_role_assignment" "sola_sp_roles" {
-  for_each             = toset(local.roles)
+resource "azurerm_role_definition" "sola_custom_role" {
+  name        = local.custom_role_name
+  scope       = "/subscriptions/${var.subscription_id}"
+  description = "Custom Sola role for ${var.app_name}"
+  permissions {
+    actions = local.custom_role_permissions
+  }
+  assignable_scopes = ["/subscriptions/${var.subscription_id}"]
+}
+
+resource "azurerm_role_assignment" "sola_custom_role_assignment" {
   scope                = "/subscriptions/${var.subscription_id}"
-  role_definition_name = each.value
+  role_definition_name = azurerm_role_definition.sola_custom_role.name
   principal_id         = azuread_service_principal.sola_sp.object_id
+
+  depends_on = [ azurerm_role_definition.sola_custom_role ]
 }
