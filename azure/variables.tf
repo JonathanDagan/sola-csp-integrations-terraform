@@ -9,12 +9,6 @@ variable "app_name" {
   description = "Application subscription name"
 }
 
-variable "azure_wait_timer" {
-  type        = string
-  description = "(Optional) Wait timer for Azure dataplane propagation - Default: 360"
-  default     = "360s"
-}
-
 variable "custom_role_name" {
   type        = string
   default     = "Sola Custom Role"

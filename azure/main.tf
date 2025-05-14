@@ -58,9 +58,6 @@ resource "azurerm_role_assignment" "sola_custom_role_assignment" {
   scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = azurerm_role_definition.sola_custom_role.name
   principal_id         = azuread_service_principal.sola_sp.object_id
-}
 
-resource "time_sleep" "wait_for_az_dataplane_custom_role" {
-  create_duration = var.azure_wait_timer
-  depends_on      = [azurerm_role_definition.sola_custom_role]
+  depends_on = [ azurerm_role_definition.sola_custom_role ]
 }
