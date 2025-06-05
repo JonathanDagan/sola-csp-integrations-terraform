@@ -8,16 +8,24 @@ resource "random_string" "sola_app_postfix" {
 
 resource "azuread_application_registration" "sola_app" {
   display_name = "${var.app_name}-${random_string.sola_app_postfix.result}"
+  
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 resource "azuread_service_principal" "sola_sp" {
   client_id   = azuread_application_registration.sola_app.client_id
   description = "Sola's integration application service principal"
+  
+  depends_on = [azuread_application_api_access.graph_api_access]
 }
 
 resource "azuread_application_password" "sola_app_password" {
   application_id = azuread_application_registration.sola_app.id
   end_date       = timeadd(timestamp(), "87600h") # 10 years
+  
+  depends_on = [azuread_application_api_access.graph_api_access]
 }
 
 resource "azuread_application_api_access" "graph_api_access" {
